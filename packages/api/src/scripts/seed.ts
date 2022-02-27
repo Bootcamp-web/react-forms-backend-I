@@ -1,6 +1,5 @@
 import { conectDB } from '../lib/db';
 import { Ingredient } from '../models/Ingredient.model';
-import mongoose from 'mongoose';
 
 
 (async () => {
