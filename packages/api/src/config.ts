@@ -11,4 +11,4 @@ const checkEnv = (envVar: string) => {
 };
 
 export const PORT: number = parseInt(checkEnv('PORT'), 10);
-//export const DB_URL: string = checkEnv('DB_URL');
+export const DB_URL: string = checkEnv('DB_URL');
