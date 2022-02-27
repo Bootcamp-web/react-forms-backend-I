@@ -8,9 +8,9 @@ border: 1px solid red;
 margin: 5px
 `;
 
-export const Item = ({ item: { ingredient, quantity } }) => (
+export const Item = ({ item: { name, quantity } }) => (
   <ItemWrap>
-    {ingredient}
+    {name}
     {' '}
     x
     {' '}

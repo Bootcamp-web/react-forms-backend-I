@@ -193,6 +193,10 @@ export const main_app: FastifyPluginAsync = async (app) => {
 };
 ~~~
 
+<hr>
+
+<a name="schema6"></a>
+
 # 6 Instalamos mongoose en la api
 ~~~
 npm install mongoose
@@ -310,4 +314,109 @@ export const main_app: FastifyPluginAsync = async (app) => {
     app.register(main_router);
     app.register(ingredients_router, { prefix: '/ingredients' });
 };
+~~~
+
+# 9 Creamos un archivo `api` dentro de front para poder servirnos de los datos de la BBDD
+Instalamos axios en el front
+~~~
+npm install axios
+~~~
+~~~ts
+import axios from 'axios';
+
+const apiBaseURL = 'http://localhost:3000';
+
+const api = axios.create({ baseURL: apiBaseURL });
+
+export const getIngredients = async () => {
+    const res = await api.get('/ingredients');
+    return res.data;
+  };
+~~~
+
+Creamos un useEffect para que cuando se ejecute la primera vez el componente cargue los datos de la BBDD.
+- Modificamos `useIngredients.tsx`
+~~~tsx
+import React, { useContext, useEffect, useState } from 'react';
+import { getIngredients } from './api';
+
+export const IngredientsContext = React.createContext({});
+
+export const useIngredient = ()=>{
+    const { ingredients, addItem }= useContext(IngredientsContext)
+
+    useEffect(()=>{
+        console.log("get ingredientes api")
+        getIngredients().then((ingredient)=>{
+            ingredient.forEach((ing)=>addItem(ing));
+        });
+    },[])
+
+    const hasIngredient = (ing) => ingredients.filter((e) => e.ingredient === ing).length > 0;
+
+    const getMissingIngredients=(recipe) => {
+        const completedIngredients =  recipe.filter((ingredient)=>ingredients.map((e)=>e.ingredient)
+        .includes(ingredient));
+
+        const setRecipe = new Set(completedIngredients);
+        const missingIngredients = new Set([...recipe].filter((x) => !setRecipe.has(x)));
+
+        return {
+            missingIngredients,
+            completed: completedIngredients.length ===recipe.lengt
+        }
+    }
+
+    return { ingredients, addItem,hasIngredient,getMissingIngredients }
+}
+
+export const ShoppingListManager = ({children}) =>{
+    const [items, setItems] = useState([]);
+    const addItem = (item)=>{
+       setItems([...items,item])
+   }
+   return(
+    <IngredientsContext.Provider value={{ingredients: items,addItem}}>
+        {children}
+    </IngredientsContext.Provider>
+   )
+
+}
+~~~
+
+# 10 CORS
+- Instalamos fastify-cors en la api/back
+~~~
+npm install fastify-cors
+~~~
+- `app.ts`
+~~~ts
+import { FastifyPluginAsync } from 'fastify';
+import fastifyCors from 'fastify-cors';
+import { conectDB } from './lib/db';
+import { ingredients_router } from './routers/ingredients_router';
+import { main_router } from './routers/main_routers';
+
+export const main_app: FastifyPluginAsync = async (app) => {
+    conectDB();
+      app.register(fastifyCors, {
+      origin: (origin, cb) => {
+        if (/localhost/.test(origin)) {
+          //  Request from localhost will pass
+          cb(null, true);
+          return;
+        }
+        // Generate an error on other origins, disabling access
+        cb(null, false);
+      },
+    });
+      
+    app.register(main_router);
+    app.register(ingredients_router, { prefix: '/ingredients' });
+};
+~~~
+- modificamos `Item.ts` por los schemas de mongoose
+~~~ts
+
+
 ~~~

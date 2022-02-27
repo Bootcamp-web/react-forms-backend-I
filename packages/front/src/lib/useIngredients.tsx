@@ -1,10 +1,12 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { getIngredients } from './api';
 
 export const IngredientsContext = React.createContext({});
 
 export const useIngredient = ()=>{
     const { ingredients, addItem }= useContext(IngredientsContext)
 
+  
     const hasIngredient = (ing) => ingredients.filter((e) => e.ingredient === ing).length > 0;
 
     const getMissingIngredients=(recipe) => {
@@ -26,7 +28,7 @@ export const useIngredient = ()=>{
 export const ShoppingListManager = ({children}) =>{
     const [items, setItems] = useState([]);
     const addItem = (item)=>{
-       setItems([...items,item])
+        setItems((it) => [...it, item]);
    }
    return(
     <IngredientsContext.Provider value={{ingredients: items,addItem}}>
